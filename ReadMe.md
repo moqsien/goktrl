@@ -13,7 +13,8 @@ goktrl是一个用于交互式进程管理的库。可以帮助您的后端应�
 ### 使用方法
 
 ------------------
-- 详见examples/ktrl/ktrl.go
+- go get -u "github.com/moqsien/goktrl"
+- 详见[examples/ktrl/ktrl.go](https://github.com/moqsien/goktrl/blob/main/examples/ktrl/ktrl.go)
 
 ### 适用场景
 
