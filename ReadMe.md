@@ -1,7 +1,7 @@
 ### goktrl
 
 ------------------
-goktrl是一个用于交互式进程管理的库。可以帮助您的后端应用程序轻松实现交互式管理。
+goktrl是一个用于交互式进程管理库。可以帮助您的后端应用程序轻松实现交互式的进程内部状态管理。
 
 ### 主要功能
 
@@ -13,7 +13,9 @@ goktrl是一个用于交互式进程管理的库。可以帮助您的后端应�
 ### 使用方法
 
 ------------------
-- go get -u "github.com/moqsien/goktrl"
+```shell
+go get -u "github.com/moqsien/goktrl"
+```
 - 详见[examples/ktrl/ktrl.go](https://github.com/moqsien/goktrl/blob/main/examples/ktrl/ktrl.go)
 
 ### 适用场景
