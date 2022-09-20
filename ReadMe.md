@@ -83,6 +83,9 @@ func main() {
 }
 
 ```
+- 效果图
+![shell-1](https://github.com/moqsien/goktrl/blob/main/docs/1.png)
+![shell-2](https://github.com/moqsien/goktrl/blob/main/docs/2.png)
 - [examples/ktrl/ktrl.go](https://github.com/moqsien/goktrl/blob/main/examples/ktrl/ktrl.go)
 
 ### 适用场景
