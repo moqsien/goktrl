@@ -1,6 +1,7 @@
 package goktrl
 
 import (
+	"encoding/json"
 	"os"
 	"reflect"
 
@@ -87,7 +88,9 @@ func (that *KtrlTable) AddRowsByListObject(dataList interface{}) {
 			}
 			row := []string{}
 			for _, name := range that.Headers {
-				row = append(row, v.Elem().FieldByName(name).String())
+				// field := v.Elem().FieldByName(name).String()
+				fStr, _ := json.Marshal(v.Elem().FieldByName(name).Interface())
+				row = append(row, string(fStr))
 			}
 			that.AddRow(row...) // 添加当前行
 		}

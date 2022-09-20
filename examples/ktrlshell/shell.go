@@ -54,6 +54,6 @@ func testShowTable() {
 }
 
 func main() {
-	// testOpts()
-	testShowTable()
+	testOpts()
+	// testShowTable()
 }
