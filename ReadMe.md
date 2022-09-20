@@ -8,7 +8,8 @@ goktrl是一个用于交互式进程管理库。可以帮助您的后端应用�
 ------------------
 - 交互式shell
 - 通过Unix Domain Socket管理正在运行的进程
-- shell终端表格显示，表格字段支持以"order"标签的值作为排序标准，如果没有order标签，则按照字段名排序
+- shell终端支持表格显示，表格字段支持以"order"标签的值作为排序标准，如果没有order标签，则按照字段名排序
+- shell命令支持可选参数解析，使用的是[goframe](https://goframe.org/pages/viewpage.action?pageId=35357529)参数解析组件
 
 ### 使用方法
 
@@ -97,3 +98,7 @@ func main() {
 
 ------------------
 [dmicro](https://github.com/osgochina/dmicro)
+[goframe](https://github.com/gogf/gf)
+[gin](https://github.com/gin-gonic/gin)
+[ishell](https://github.com/abiosoft/ishell)
+[table](https://github.com/aquasecurity/table)
