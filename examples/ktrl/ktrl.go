@@ -60,14 +60,5 @@ func ShowTable() {
 }
 
 func main() {
-	// ktrl := goktrl.NewKtrl()
-	// fmt.Println(os.Args)
-	// if len(os.Args[1:]) > 0 {
-	// 	RunShell(ktrl)
-	// } else {
-	// 	gin.SetMode(gin.ReleaseMode)
-	// 	RunServer(ktrl)
-	// }
-	// KtrlTest()
 	ShowTable()
 }
