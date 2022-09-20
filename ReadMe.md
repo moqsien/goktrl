@@ -40,7 +40,7 @@ type Data struct {
 }
 
 func Info(k *goktrl.KtrlContext) {
-	result, err := k.Client.GetResult(k.KtrlPath, k.Parser.GetOptAll(), k.DefaultSocket)
+	result, err := k.GetResult()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -86,6 +86,7 @@ func main() {
 
 ```
 - 效果图
+![shell-0](https://github.com/moqsien/goktrl/blob/main/docs/0.png)
 ![shell-1](https://github.com/moqsien/goktrl/blob/main/docs/1.png)
 ![shell-2](https://github.com/moqsien/goktrl/blob/main/docs/2.png)
 - [examples/ktrl/ktrl.go](https://github.com/moqsien/goktrl/blob/main/examples/ktrl/ktrl.go)

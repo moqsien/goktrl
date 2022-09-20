@@ -31,6 +31,14 @@ type KtrlContext struct {
 	DefaultSocket string
 }
 
+func (that *KtrlContext) GetResult(sockName ...string) (string, error) {
+	sName := that.DefaultSocket
+	if len(sockName) > 0 && len(sockName[0]) > 0 {
+		sName = sockName[0]
+	}
+	return that.Client.GetResult(that.KtrlPath, that.Parser.GetOptAll(), sName)
+}
+
 type KtrlCmd struct {
 	Name          string
 	Help          string

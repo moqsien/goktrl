@@ -19,7 +19,7 @@ type Data struct {
 }
 
 func Info(k *goktrl.KtrlContext) {
-	result, err := k.Client.GetResult(k.KtrlPath, k.Parser.GetOptAll(), k.DefaultSocket)
+	result, err := k.GetResult()
 	if err != nil {
 		fmt.Println(err)
 		return
