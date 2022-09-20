@@ -47,7 +47,6 @@ func testShowTable() {
 					  ["Pear","5", "121"]
 					]
 				  }`)
-				k.Table.Render()
 			}
 		},
 	})
