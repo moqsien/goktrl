@@ -9,34 +9,23 @@ import (
 	"github.com/moqsien/goktrl"
 )
 
-var Sock = "test"
+var SockName string = "info"
 
-func RunShell(kt *goktrl.Ktrl) {
-	kt.CtrlShell.AddCmd(&goktrl.KtrlCmd{
-		Name: "info",
-		Help: "show info",
-		Opts: &g.MapStrBool{
-			"all,a": true,
-		},
-		KtrlPath:  "/ctrl/info",
-		ShowTable: true,
-		Func: func(k *goktrl.KtrlContext) {
-			result, err := k.Client.GetResult(k.KtrlPath, k.Parser.GetOptAll(), Sock)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			// fmt.Println("ResultString: ", result)
-			k.Table.AddRowsByJsonString(result)
-		},
-	})
-	kt.CtrlShell.Run()
+func InfoShell(k *goktrl.KtrlContext) {
+	result, err := k.Client.GetResult(k.KtrlPath,
+		k.Parser.GetOptAll(),
+		k.DefaultSocket)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	// fmt.Println("ResultString: ", result)
+	k.Table.AddRowsByJsonString(result)
 }
 
-func RunServer(kt *goktrl.Ktrl) {
-	kt.CtrlServer.AddHandler("/ctrl/info", func(c *gin.Context) {
-		fmt.Println("===info===")
-		respStr := `{
+func InfoHandler(c *gin.Context) {
+	fmt.Println("===", c.Query("all"))
+	respStr := `{
 			"headers": ["Name", "Price", "Stokes"],
 			"rows": [
 			  ["Apple","6", "128"],
@@ -44,7 +33,23 @@ func RunServer(kt *goktrl.Ktrl) {
 			  ["Pear","5", "121"]
 			]
 		  }`
-		c.String(http.StatusOK, respStr)
+	c.String(http.StatusOK, respStr)
+}
+
+func KtrlTest() {
+	kt := goktrl.NewKtrl()
+	kt.AddKtrlCommand(&goktrl.KCommand{
+		Name: "info",
+		Help: "show info",
+		Func: InfoShell,
+		Opts: &g.MapStrBool{
+			"all,a": true,
+		},
+		KtrlPath:    "/ctrl/info",
+		ShowTable:   true,
+		KtrlHandler: InfoHandler,
+		SocketName:  SockName,
 	})
-	kt.CtrlServer.Start(Sock)
+	go kt.RunCtrl()
+	kt.RunShell()
 }

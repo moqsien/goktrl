@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -9,46 +10,50 @@ import (
 	"github.com/moqsien/goktrl"
 )
 
-var SockName string = "info"
+type Data struct {
+	Name     string                 `order:"1"`
+	Price    float32                `order:"2"`
+	Stokes   int                    `order:"3"`
+	Addition []interface{}          `order:"4"`
+	Sth      map[string]interface{} `order:"5"`
+}
 
-func InfoShell(k *goktrl.KtrlContext) {
-	result, err := k.Client.GetResult(k.KtrlPath,
-		k.Parser.GetOptAll(),
-		k.DefaultSocket)
+func Info(k *goktrl.KtrlContext) {
+	result, err := k.Client.GetResult(k.KtrlPath, k.Parser.GetOptAll(), k.DefaultSocket)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	// fmt.Println("ResultString: ", result)
-	k.Table.AddRowsByJsonString(result)
+	content := &[]*Data{}
+	err = json.Unmarshal([]byte(result), content)
+	k.Table.AddRowsByListObject(*content)
 }
 
-func InfoHandler(c *gin.Context) {
-	fmt.Println("===", c.Query("all"))
-	respStr := `{
-			"headers": ["Name", "Price", "Stokes"],
-			"rows": [
-			  ["Apple","6", "128"],
-			  ["Banana","3", "256"],
-			  ["Pear","5", "121"]
-			]
-		  }`
-	c.String(http.StatusOK, respStr)
+func Handler(c *gin.Context) {
+	Result := []*Data{
+		{Name: "Apple", Price: 6.0, Stokes: 128, Addition: []interface{}{1, "a", "c"}},
+		{Name: "Banana", Price: 3.5, Stokes: 256, Addition: []interface{}{"b", 1.2}},
+		{Name: "Pear", Price: 5, Stokes: 121, Sth: map[string]interface{}{"s": 123}},
+	}
+	content, _ := json.Marshal(Result)
+	c.String(http.StatusOK, string(content))
 }
 
-func KtrlTest() {
+var SName = "info"
+
+func ShowTable() {
 	kt := goktrl.NewKtrl()
 	kt.AddKtrlCommand(&goktrl.KCommand{
 		Name: "info",
 		Help: "show info",
-		Func: InfoShell,
+		Func: Info,
 		Opts: &g.MapStrBool{
 			"all,a": true,
 		},
 		KtrlPath:    "/ctrl/info",
 		ShowTable:   true,
-		KtrlHandler: InfoHandler,
-		SocketName:  SockName,
+		KtrlHandler: Handler,
+		SocketName:  SName,
 	})
 	go kt.RunCtrl()
 	kt.RunShell()
@@ -63,5 +68,6 @@ func main() {
 	// 	gin.SetMode(gin.ReleaseMode)
 	// 	RunServer(ktrl)
 	// }
-	KtrlTest()
+	// KtrlTest()
+	ShowTable()
 }
