@@ -71,7 +71,6 @@ func ShowTable() {
 		Opts: &g.MapStrBool{
 			"all,a": true,
 		},
-		KtrlPath:    "/ctrl/info",
 		ShowTable:   true,
 		KtrlHandler: Handler,
 		SocketName:  SName,
@@ -100,7 +99,11 @@ func main() {
 
 ------------------
 [dmicro](https://github.com/osgochina/dmicro)
+
 [goframe](https://github.com/gogf/gf)
+
 [gin](https://github.com/gin-gonic/gin)
+
 [ishell](https://github.com/abiosoft/ishell)
+
 [table](https://github.com/aquasecurity/table)

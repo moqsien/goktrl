@@ -50,7 +50,6 @@ func ShowTable() {
 		Opts: &g.MapStrBool{
 			"all,a": true,
 		},
-		KtrlPath:    "/ctrl/info",
 		ShowTable:   true,
 		KtrlHandler: Handler,
 		SocketName:  SName,

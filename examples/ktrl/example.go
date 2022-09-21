@@ -45,7 +45,6 @@ func KtrlTest() {
 		Opts: &g.MapStrBool{
 			"all,a": true,
 		},
-		KtrlPath:    "/ctrl/info",
 		ShowTable:   true,
 		KtrlHandler: InfoHandler,
 		SocketName:  SockName,

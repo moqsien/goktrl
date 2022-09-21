@@ -1,6 +1,9 @@
 package goktrl
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gogf/gf/frame/g"
 )
@@ -22,25 +25,29 @@ type KCommand struct {
 	Help        string               // shell 命令解释
 	Func        func(k *KtrlContext) // shell 命令钩子函数
 	Opts        *g.MapStrBool        // shell 命令可选参数配置
-	KtrlPath    string               // 路由
 	ShowTable   bool                 // 结果是否在命令行中以表格显示
 	KtrlHandler func(c *gin.Context) // Ktrl服务端视图函数
 	SocketName  string               // 默认Unix套接字名称
 }
 
+func (that *KCommand) GetKtrlPath() string {
+	return fmt.Sprintf("/ktrl/%s", that.Name)
+}
+
 func (that *Ktrl) AddKtrlCommand(kcmd *KCommand) {
 	that.CtrlShell.AddCmd(&KtrlCmd{
-		Name:          kcmd.Name,
+		Name:          strings.ReplaceAll(kcmd.Name, " ", ""),
 		Help:          kcmd.Help,
 		Opts:          kcmd.Opts,
-		KtrlPath:      kcmd.KtrlPath,
+		KtrlPath:      kcmd.GetKtrlPath(),
 		ShowTable:     kcmd.ShowTable,
 		Func:          kcmd.Func,
 		DefaultSocket: kcmd.SocketName,
 	})
 
-	that.CtrlServer.AddHandler(kcmd.KtrlPath, kcmd.KtrlHandler)
-	if kcmd.SocketName != "" {
+	that.CtrlServer.AddHandler(kcmd.GetKtrlPath(), kcmd.KtrlHandler)
+	if kcmd.SocketName != "" && that.CtrlServer.UnixSocket.UnixSocketName == "" {
+		// 服务端Unix套接字设置一次就好了
 		that.CtrlServer.SetUnixSocket(kcmd.SocketName)
 	}
 }
