@@ -31,7 +31,7 @@ type KtrlContext struct {
 	DefaultSocket string
 }
 
-func (that *KtrlContext) GetResult(sockName ...string) (string, error) {
+func (that *KtrlContext) GetResult(sockName ...string) ([]byte, error) {
 	sName := that.DefaultSocket
 	if len(sockName) > 0 && len(sockName[0]) > 0 {
 		sName = sockName[0]

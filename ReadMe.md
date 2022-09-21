@@ -46,7 +46,7 @@ func Info(k *goktrl.KtrlContext) {
 		return
 	}
 	content := &[]*Data{}
-	err = json.Unmarshal([]byte(result), content)
+	err = json.Unmarshal(result, content)
 	k.Table.AddRowsByListObject(*content)
 }
 

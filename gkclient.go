@@ -54,7 +54,7 @@ func (that *KtrlClient) ParseParams(params map[string]string) {
 	}
 }
 
-func (that *KtrlClient) GetResult(urlPath string, params map[string]string, sockName ...string) (string, error) {
+func (that *KtrlClient) GetResult(urlPath string, params map[string]string, sockName ...string) ([]byte, error) {
 	if len(sockName) > 0 {
 		that.SetUnixSocket(sockName[0])
 	}
@@ -67,11 +67,11 @@ func (that *KtrlClient) GetResult(urlPath string, params map[string]string, sock
 
 	resp, err := that.Client.Get(url)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if result, err := ioutil.ReadAll(resp.Body); err != nil {
-		return "", err
+		return nil, err
 	} else {
-		return string(result), nil
+		return result, nil
 	}
 }

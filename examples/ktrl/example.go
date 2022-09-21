@@ -20,7 +20,7 @@ func InfoShell(k *goktrl.KtrlContext) {
 		return
 	}
 	// fmt.Println("ResultString: ", result)
-	k.Table.AddRowsByJsonString(result)
+	k.Table.AddRowsByJsonString(string(result))
 }
 
 func InfoHandler(c *gin.Context) {
