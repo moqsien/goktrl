@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 
-	"github.com/gogf/gf/frame/g"
 	"github.com/moqsien/goktrl"
 )
 
@@ -12,9 +11,14 @@ func testOpts() {
 	shell.AddCmd(&goktrl.KtrlCmd{
 		Name: "info",
 		Help: "show info",
-		Opts: &g.MapStrBool{
-			"test,t":   true,
-			"test2,t2": false,
+		Opts: goktrl.Opts{
+			&goktrl.Option{
+				Name:      "test,t",
+				NeedParse: true,
+			},
+			&goktrl.Option{
+				Name: "test2,t2",
+			},
 		},
 		Func: func(k *goktrl.KtrlContext) {
 			fmt.Println("args: ", k.Args)
@@ -32,8 +36,11 @@ func testShowTable() {
 	shell.AddCmd(&goktrl.KtrlCmd{
 		Name: "table",
 		Help: "show table",
-		Opts: &g.MapStrBool{
-			"table,t": true,
+		Opts: goktrl.Opts{
+			&goktrl.Option{
+				Name:      "table,t",
+				NeedParse: true,
+			},
 		},
 		ShowTable: true,
 		Func: func(k *goktrl.KtrlContext) {

@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gogf/gf/frame/g"
 )
 
 type Ktrl struct {
@@ -24,7 +23,7 @@ type KCommand struct {
 	Name        string               // shell 命令名称
 	Help        string               // shell 命令解释
 	Func        func(k *KtrlContext) // shell 命令钩子函数
-	Opts        *g.MapStrBool        // shell 命令可选参数配置
+	Opts        Opts                 // shell 命令可选参数配置
 	ShowTable   bool                 // 结果是否在命令行中以表格显示
 	KtrlHandler func(c *gin.Context) // Ktrl服务端视图函数
 	SocketName  string               // 默认Unix套接字名称

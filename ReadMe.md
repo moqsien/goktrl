@@ -27,19 +27,21 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gogf/gf/frame/g"
 	"github.com/moqsien/goktrl"
 )
 
 type Data struct {
+	Addition []interface{}          `order:"4"` // 表格会按照order进行字段排序
 	Name     string                 `order:"1"`
 	Price    float32                `order:"2"`
 	Stokes   int                    `order:"3"`
-	Addition []interface{}          `order:"4"`
 	Sth      map[string]interface{} `order:"5"`
 }
 
 func Info(k *goktrl.KtrlContext) {
+	all := k.Parser.GetOpt("all")
+	fmt.Println("all: ", all)
+
 	result, err := k.GetResult()
 	if err != nil {
 		fmt.Println(err)
@@ -65,12 +67,14 @@ var SName = "info"
 func ShowTable() {
 	kt := goktrl.NewKtrl()
 	kt.AddKtrlCommand(&goktrl.KCommand{
-		Name: "info",
-		Help: "show info",
+		Name: "info",      // 命令名称
+		Help: "show info", // 帮助信息
 		Func: Info,
-		Opts: &g.MapStrBool{
-			"all,a": true,
-		},
+		Opts: goktrl.Opts{&goktrl.Option{
+			Name:      "all,a", // 参数名称和别名
+			NeedParse: true,    // 是否需要解析
+			Must:      true,    // 是否不能为空
+		}},
 		ShowTable:   true,
 		KtrlHandler: Handler,
 		SocketName:  SName,
@@ -82,7 +86,6 @@ func ShowTable() {
 func main() {
 	ShowTable()
 }
-
 ```
 - 效果图
 ![shell-0](https://github.com/moqsien/goktrl/blob/main/docs/0.png)

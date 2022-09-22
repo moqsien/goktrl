@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gogf/gf/frame/g"
 	"github.com/moqsien/goktrl"
 )
 
@@ -42,9 +41,11 @@ func KtrlTest() {
 		Name: "info",
 		Help: "show info",
 		Func: InfoShell,
-		Opts: &g.MapStrBool{
-			"all,a": true,
-		},
+		Opts: goktrl.Opts{&goktrl.Option{
+			Name:      "all,a",
+			NeedParse: true,
+			Must:      true,
+		}},
 		ShowTable:   true,
 		KtrlHandler: InfoHandler,
 		SocketName:  SockName,
