@@ -40,19 +40,22 @@ type Data struct {
 
 func Info(k *goktrl.KtrlContext) {
 	all := k.Parser.GetOpt("all")
-	fmt.Println("all: ", all)
+	fmt.Printf("$$$client: all=%s\n", all)
 
-	result, err := k.GetResult()
+	result, err := k.GetResult() // 向服务端发送请求，会自动携带shell收集到的命名参数，例如all
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	content := &[]*Data{}
 	err = json.Unmarshal(result, content)
-	k.Table.AddRowsByListObject(*content)
+	k.Table.AddRowsByListObject(*content) // 渲染表格
 }
 
 func Handler(c *gin.Context) {
+	all := c.Query("all")
+	fmt.Printf("$$$server: all = %v\n", all)
+
 	Result := []*Data{
 		{Name: "Apple", Price: 6.0, Stokes: 128, Addition: []interface{}{1, "a", "c"}},
 		{Name: "Banana", Price: 3.5, Stokes: 256, Addition: []interface{}{"b", 1.2}},
@@ -67,17 +70,17 @@ var SName = "info"
 func ShowTable() {
 	kt := goktrl.NewKtrl()
 	kt.AddKtrlCommand(&goktrl.KCommand{
-		Name: "info",      // 命令名称
-		Help: "show info", // 帮助信息
-		Func: Info,
+		Name: "info",                               // 命令名称
+		Help: "【show info】Usage: info -a=<sth.>", // 帮助信息
+		Func: Info, // shell客户端钩子函数
 		Opts: goktrl.Opts{&goktrl.Option{
 			Name:      "all,a", // 参数名称和别名
-			NeedParse: true,    // 是否需要解析
-			Must:      true,    // 是否不能为空
+			NeedParse: true,    // 是否需要解析，针对-xxx等无需传值的标记参数，详见goframe
+			Must:      true,    // 是否不能为空，设置为true后会自动检测shell命令的参数是否已传
 		}},
-		ShowTable:   true,
-		KtrlHandler: Handler,
-		SocketName:  SName,
+		ShowTable:   true,      // 开启表格显示
+		KtrlHandler: Handler,   // 服务端视图函数
+		SocketName:  SName,     // 默认unix套接字名称
 	})
 	go kt.RunCtrl()
 	kt.RunShell()

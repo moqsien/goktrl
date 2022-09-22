@@ -18,6 +18,8 @@ type Data struct {
 }
 
 func Info(k *goktrl.KtrlContext) {
+	all := k.Parser.GetOpt("all")
+	fmt.Printf("$$$client: all=%s\n", all)
 	result, err := k.GetResult()
 	if err != nil {
 		fmt.Println(err)
@@ -29,6 +31,8 @@ func Info(k *goktrl.KtrlContext) {
 }
 
 func Handler(c *gin.Context) {
+	all := c.Query("all")
+	fmt.Printf("$$$server: all = %v\n", all)
 	Result := []*Data{
 		{Name: "Apple", Price: 6.0, Stokes: 128, Addition: []interface{}{1, "a", "c"}},
 		{Name: "Banana", Price: 3.5, Stokes: 256, Addition: []interface{}{"b", 1.2}},
@@ -44,7 +48,7 @@ func ShowTable() {
 	kt := goktrl.NewKtrl()
 	kt.AddKtrlCommand(&goktrl.KCommand{
 		Name: "info",
-		Help: "show info",
+		Help: "【show info】Usage: info -a=<sth.>",
 		Func: Info,
 		Opts: goktrl.Opts{&goktrl.Option{
 			Name:      "all,a",
