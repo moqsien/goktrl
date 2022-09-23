@@ -90,14 +90,14 @@ func ShowTable() {
 		Name:            "info", // 命令名称
 		Help:            "show info", // 命令简单描述
 		Func:            Info,
-		Opts:            &InfOptions{}, // 命令的命名的参数配置
+		Opts:            &InfOptions{}, // 命令的具名参数的配置，设置好tag就行
 		ShowTable:       true,
 		KtrlHandler:     Handler,
 		SocketName:      SName,
 		ArgsCollectedAs: "in", // 如果设置了，则收集普通参数
 	})
-	go kt.RunCtrl()
-	kt.RunShell()
+	go kt.RunCtrl() // 启动服务端
+	kt.RunShell() // 启动shell
 }
 
 func main() {
