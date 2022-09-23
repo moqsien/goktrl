@@ -2,9 +2,6 @@ package goktrl
 
 import (
 	"fmt"
-	"strings"
-
-	"github.com/gin-gonic/gin"
 )
 
 type Ktrl struct {
@@ -20,13 +17,14 @@ func NewKtrl() *Ktrl {
 }
 
 type KCommand struct {
-	Name        string               // shell 命令名称
-	Help        string               // shell 命令解释
-	Func        func(k *KtrlContext) // shell 命令钩子函数
-	Opts        Opts                 // shell 命令可选参数配置
-	ShowTable   bool                 // 结果是否在命令行中以表格显示
-	KtrlHandler func(c *gin.Context) // Ktrl服务端视图函数
-	SocketName  string               // 默认Unix套接字名称
+	Name            string                  // shell 命令名称
+	Help            string                  // shell 命令解释
+	Func            func(k *KtrlContext)    // shell 命令钩子函数
+	Opts            KtrlOpt                 // shell 命令可选参数配置
+	ShowTable       bool                    // 结果是否在命令行中以表格显示
+	KtrlHandler     func(sc *ServerContext) // Ktrl服务端视图函数
+	SocketName      string                  // 默认Unix套接字名称
+	ArgsCollectedAs string                  // 收集Args并命名为ArgsCollectedAs
 }
 
 func (that *KCommand) GetKtrlPath() string {
@@ -34,17 +32,9 @@ func (that *KCommand) GetKtrlPath() string {
 }
 
 func (that *Ktrl) AddKtrlCommand(kcmd *KCommand) {
-	that.CtrlShell.AddCmd(&KtrlCmd{
-		Name:          strings.ReplaceAll(kcmd.Name, " ", ""),
-		Help:          kcmd.Help,
-		Opts:          kcmd.Opts,
-		KtrlPath:      kcmd.GetKtrlPath(),
-		ShowTable:     kcmd.ShowTable,
-		Func:          kcmd.Func,
-		DefaultSocket: kcmd.SocketName,
-	})
+	that.CtrlShell.AddCmd(kcmd)
 
-	that.CtrlServer.AddHandler(kcmd.GetKtrlPath(), kcmd.KtrlHandler)
+	that.CtrlServer.AddHandler(kcmd)
 	if kcmd.SocketName != "" && that.CtrlServer.UnixSocket.UnixSocketName == "" {
 		// 服务端Unix套接字设置一次就好了
 		that.CtrlServer.SetUnixSocket(kcmd.SocketName)

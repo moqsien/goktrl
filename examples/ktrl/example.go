@@ -4,16 +4,20 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/moqsien/goktrl"
 )
 
 var SockName string = "info"
 
+type InfoOptions struct {
+	*goktrl.KtrlOption
+	All string `alias:"a" must:"true"`
+}
+
 func InfoShell(k *goktrl.KtrlContext) {
-	result, err := k.Client.GetResult(k.KtrlPath,
-		k.Parser.GetOptAll(),
-		k.DefaultSocket)
+	all := k.Options.(*InfoOptions)
+	fmt.Println("##client all: ", all)
+	result, err := k.GetResult()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -22,8 +26,9 @@ func InfoShell(k *goktrl.KtrlContext) {
 	k.Table.AddRowsByJsonString(string(result))
 }
 
-func InfoHandler(c *gin.Context) {
-	fmt.Println("===", c.Query("all"))
+func InfoHandler(sc *goktrl.ServerContext) {
+	all := sc.Options.(*InfoOptions)
+	fmt.Println("$$sever all: ", all)
 	respStr := `{
 			"headers": ["Name", "Price", "Stokes"],
 			"rows": [
@@ -32,20 +37,16 @@ func InfoHandler(c *gin.Context) {
 			  ["Pear","5", "121"]
 			]
 		  }`
-	c.String(http.StatusOK, respStr)
+	sc.String(http.StatusOK, respStr)
 }
 
 func KtrlTest() {
 	kt := goktrl.NewKtrl()
 	kt.AddKtrlCommand(&goktrl.KCommand{
-		Name: "info",
-		Help: "show info",
-		Func: InfoShell,
-		Opts: goktrl.Opts{&goktrl.Option{
-			Name:      "all,a",
-			NeedParse: true,
-			Must:      true,
-		}},
+		Name:        "info",
+		Help:        "show info",
+		Func:        InfoShell,
+		Opts:        &InfoOptions{},
 		ShowTable:   true,
 		KtrlHandler: InfoHandler,
 		SocketName:  SockName,

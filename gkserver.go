@@ -23,6 +23,14 @@ type KtrlServer struct {
 	Router *gin.Engine // UnixSockHttp 服务端
 }
 
+type ServerContext struct {
+	*gin.Context
+	Options KtrlOpt
+	Args    []string
+}
+
+type ServerHandler func(sc *ServerContext)
+
 func NewKtrlServer() *KtrlServer {
 	return &KtrlServer{
 		Router: gin.New(),
@@ -30,8 +38,15 @@ func NewKtrlServer() *KtrlServer {
 }
 
 // AddHandler 为KtrlServer添加视图函数
-func (that *KtrlServer) AddHandler(urlPath string, handler func(c *gin.Context)) {
-	that.Router.GET(urlPath, handler)
+func (that *KtrlServer) AddHandler(kcmd *KCommand) {
+	that.Router.GET(kcmd.GetKtrlPath(), func(c *gin.Context) {
+		options := kcmd.Opts.ParseServerOptions(kcmd.Opts, c) // 解析Options
+		kcmd.KtrlHandler(&ServerContext{
+			Context: c,
+			Options: options,
+			Args:    strings.Split(c.Query(kcmd.ArgsCollectedAs), ","),
+		})
+	})
 }
 
 func (that *KtrlServer) SetUnixSocket(sockName string) {

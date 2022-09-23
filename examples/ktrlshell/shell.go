@@ -6,20 +6,18 @@ import (
 	"github.com/moqsien/goktrl"
 )
 
+type InfoOptions struct {
+	*goktrl.KtrlOption
+	Test  string `alias:"t"`
+	Test2 string `alias:"t2" needparse:"false"`
+}
+
 func testOpts() {
 	shell := goktrl.NewShell()
-	shell.AddCmd(&goktrl.KtrlCmd{
+	shell.AddCmd(&goktrl.KCommand{
 		Name: "info",
 		Help: "show info",
-		Opts: goktrl.Opts{
-			&goktrl.Option{
-				Name:      "test,t",
-				NeedParse: true,
-			},
-			&goktrl.Option{
-				Name: "test2,t2",
-			},
-		},
+		Opts: &InfoOptions{},
 		Func: func(k *goktrl.KtrlContext) {
 			fmt.Println("args: ", k.Args)
 			fmt.Println("t: ", k.Parser.GetOpt("t"))
@@ -31,17 +29,17 @@ func testOpts() {
 	shell.Run()
 }
 
+type TableOptions struct {
+	*goktrl.KtrlOption
+	Table string `alias:"t"`
+}
+
 func testShowTable() {
 	shell := goktrl.NewShell()
-	shell.AddCmd(&goktrl.KtrlCmd{
-		Name: "table",
-		Help: "show table",
-		Opts: goktrl.Opts{
-			&goktrl.Option{
-				Name:      "table,t",
-				NeedParse: true,
-			},
-		},
+	shell.AddCmd(&goktrl.KCommand{
+		Name:      "table",
+		Help:      "show table",
+		Opts:      &TableOptions{},
 		ShowTable: true,
 		Func: func(k *goktrl.KtrlContext) {
 			//命令： table -t abc
