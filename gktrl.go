@@ -17,14 +17,13 @@ func NewKtrl() *Ktrl {
 }
 
 type KCommand struct {
-	Name            string                  // shell 命令名称
-	Help            string                  // shell 命令解释
-	Func            func(k *KtrlContext)    // shell 命令钩子函数
-	Opts            KtrlOpt                 // shell 命令可选参数配置
-	ShowTable       bool                    // 结果是否在命令行中以表格显示
-	KtrlHandler     func(sc *ServerContext) // Ktrl服务端视图函数
-	SocketName      string                  // 默认Unix套接字名称
-	ArgsCollectedAs string                  // 收集Args并命名为ArgsCollectedAs
+	Name        string           // shell 命令名称
+	Help        string           // shell 命令解释
+	Func        func(c *Context) // shell 命令钩子函数
+	Opts        KtrlOpt          // shell 命令可选参数配置
+	ShowTable   bool             // 结果是否在命令行中以表格显示
+	KtrlHandler func(c *Context) // Ktrl服务端视图函数
+	SocketName  string           // 默认Unix套接字名称
 }
 
 func (that *KCommand) GetKtrlPath() string {

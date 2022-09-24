@@ -14,7 +14,7 @@ type InfoOptions struct {
 	All string `alias:"a" must:"true"`
 }
 
-func InfoShell(k *goktrl.KtrlContext) {
+func InfoShell(k *goktrl.Context) {
 	all := k.Options.(*InfoOptions)
 	fmt.Println("##client all: ", all)
 	result, err := k.GetResult()
@@ -26,7 +26,7 @@ func InfoShell(k *goktrl.KtrlContext) {
 	k.Table.AddRowsByJsonString(string(result))
 }
 
-func InfoHandler(sc *goktrl.ServerContext) {
+func InfoHandler(sc *goktrl.Context) {
 	all := sc.Options.(*InfoOptions)
 	fmt.Println("$$sever all: ", all)
 	respStr := `{

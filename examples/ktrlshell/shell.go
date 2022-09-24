@@ -18,7 +18,7 @@ func testOpts() {
 		Name: "info",
 		Help: "show info",
 		Opts: &InfoOptions{},
-		Func: func(k *goktrl.KtrlContext) {
+		Func: func(k *goktrl.Context) {
 			fmt.Println("args: ", k.Args)
 			fmt.Println("t: ", k.Parser.GetOpt("t"))
 			fmt.Println("test: ", k.Parser.GetOpt("test"))
@@ -41,7 +41,7 @@ func testShowTable() {
 		Help:      "show table",
 		Opts:      &TableOptions{},
 		ShowTable: true,
-		Func: func(k *goktrl.KtrlContext) {
+		Func: func(k *goktrl.Context) {
 			//命令： table -t abc
 			if table := k.Parser.GetOpt("table"); len(table) > 0 {
 				k.Table.AddRowsByJsonString(`{

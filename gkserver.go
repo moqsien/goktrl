@@ -2,6 +2,7 @@ package goktrl
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -23,14 +24,6 @@ type KtrlServer struct {
 	Router *gin.Engine // UnixSockHttp 服务端
 }
 
-type ServerContext struct {
-	*gin.Context
-	Options KtrlOpt
-	Args    []string
-}
-
-type ServerHandler func(sc *ServerContext)
-
 func NewKtrlServer() *KtrlServer {
 	return &KtrlServer{
 		Router: gin.New(),
@@ -41,10 +34,11 @@ func NewKtrlServer() *KtrlServer {
 func (that *KtrlServer) AddHandler(kcmd *KCommand) {
 	that.Router.GET(kcmd.GetKtrlPath(), func(c *gin.Context) {
 		options := kcmd.Opts.ParseServerOptions(kcmd.Opts, c) // 解析Options
-		kcmd.KtrlHandler(&ServerContext{
+		kcmd.KtrlHandler(&Context{
 			Context: c,
+			Type:    ContextServer,
 			Options: options,
-			Args:    strings.Split(c.Query(kcmd.ArgsCollectedAs), ","),
+			Args:    strings.Split(c.Query(fmt.Sprintf(ArgsFormatStr, kcmd.Name)), ","),
 		})
 	})
 }

@@ -18,9 +18,11 @@ goktrl是一个用于交互式进程管理库。可以帮助您的后端应用�
 
 ------------------
 ```shell
-go get -u "github.com/moqsien/goktrl@v1.2.0"
+go get -u "github.com/moqsien/goktrl@v1.2.1"
 ```
 ```go
+package main
+
 import (
 	"encoding/json"
 	"fmt"
@@ -29,24 +31,31 @@ import (
 	"github.com/moqsien/goktrl"
 )
 
-// 表格字段
+/*
+  下面是一个关于goktrl的简短示例。
+*/
+
+/*
+  表格字段，如果需要显示表格，可以自行定义；
+  order标签用于显示时的字段排序，若不设置order标签则按字段名排序；
+*/
 type Data struct {
-	Addition []interface{}          `order:"4"` // 可以按order标签排序，没有order标签，默认按字段名排序
 	Name     string                 `order:"1"`
 	Price    float32                `order:"2"`
 	Stokes   int                    `order:"3"`
+	Addition []interface{}          `order:"4"`
 	Sth      map[string]interface{} `order:"5"`
 }
 
 /*
-  定义参数。
-  必须继承goktrl.KtrlOption基类。
-  支持的标签有：
-    alias: 设置参数别名；
-	must: 是否必传；
-	descr: 参数的描述；
-	needparse: 参考goframe命令解析设置为true；默认值为true；
-	字段支持Bool Int UInt Float String类型；
+  命令的具名参数(options)的配置；
+  结构体字段名即为参数名；
+  标签功能解释：
+    alias: 设置别名；
+	must: 是否为必传具名参数；
+	descr: 具名参数描述信息；
+	needparse: 一般不需要用户设置，已根据结构体字段类型进程自动处理；
+  支持的字段类型有: string, bool, int, uint, float
 */
 type InfOptions struct {
 	*goktrl.KtrlOption
@@ -54,57 +63,55 @@ type InfOptions struct {
 	Info string `alias:"i" descr:"infomation"`
 }
 
-// 客户端钩子函数
-func Info(k *goktrl.KtrlContext) {
-	o := k.Options.(*InfOptions) // 可以自动解析参数
-	fmt.Printf("## client: options=%v\n", o)
-	fmt.Printf("## client: args=%v\n", k.Args)
-	result, err := k.GetResult() // 向服务端发送请求：会请求到下面的Handler方法
+func Info(c *goktrl.Context) {
+	o := c.Options.(*InfOptions)               // 自动解析参数到结构体
+	fmt.Printf("## client: options=%v\n", o)   // 打印结构体
+	fmt.Printf("## client: args=%v\n", c.Args) // 自动收集命令行普通的位置参数
+	result, err := c.GetResult()               // 自动根据参数向服务端发送请求，请求会到达下面的Handler路由方法
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	content := &[]*Data{}
 	err = json.Unmarshal(result, content)
-	k.Table.AddRowsByListObject(*content) // 向表格中添加数据
+	c.Table.AddRowsByListObject(*content) // 如果ShowTable设置为true，此处可添加表格数据，会自动渲染和显示表格
 }
 
-func Handler(c *goktrl.ServerContext) {
-	o := c.Options.(*InfOptions) // 可以自动解析参数
-	fmt.Printf("$$ server: options = %v\n", o)
-	fmt.Printf("$$ server: args = %v\n", c.Args) // 如果设置了ArgsCollectedAs，则可以获取到这些普通参数
+func Handler(c *goktrl.Context) {
+	o := c.Options.(*InfOptions)                 // 自动解析参数到结构体
+	fmt.Printf("$$ server: options = %v\n", o)   // 打印结构体
+	fmt.Printf("$$ server: args = %v\n", c.Args) // 自动解析shell传过来的位置参数到c.Args
 	Result := []*Data{
 		{Name: "Apple", Price: 6.0, Stokes: 128, Addition: []interface{}{1, "a", "c"}},
 		{Name: "Banana", Price: 3.5, Stokes: 256, Addition: []interface{}{"b", 1.2}},
 		{Name: "Pear", Price: 5, Stokes: 121, Sth: map[string]interface{}{"s": 123}},
 	}
 	content, _ := json.Marshal(Result)
-	c.String(http.StatusOK, string(content)) // 向客户端发送内容
+	c.String(http.StatusOK, string(content)) // 发送数据给shell
 }
 
-var SName = "info"
+var SName = "info" // shell客户端和服务端交互的unix套接字名称
 
 func ShowTable() {
 	kt := goktrl.NewKtrl()
 	kt.AddKtrlCommand(&goktrl.KCommand{
-		Name:            "info", // 命令名称
-		Help:            "show info", // 命令简单描述
-		Func:            Info,
-		Opts:            &InfOptions{}, // 命令的具名参数的配置，设置好tag就行
-		ShowTable:       true,
-		KtrlHandler:     Handler,
-		SocketName:      SName,
-		ArgsCollectedAs: "in", // 如果设置了，则收集普通参数
+		Name:        "info",        // 命令名称
+		Help:        "show info",   // 命令简短介绍
+		Func:        Info,          // shell命令钩子
+		Opts:        &InfOptions{}, // shell命令的具名参数
+		ShowTable:   true,          // 是否开启表格显示功能
+		KtrlHandler: Handler,       // shell服务端视图函数
+		SocketName:  SName,         // unix套接字名称
 	})
-	go kt.RunCtrl() // 启动服务端
-	kt.RunShell() // 启动shell
+	go kt.RunCtrl() // 开启服务端
+	kt.RunShell()   // 开启shell
 }
 
 func main() {
 	ShowTable()
 }
 ```
-- 效果图
+- 示例效果图
 ![shell-0](https://github.com/moqsien/goktrl/blob/main/docs/0.png)
 ![shell-1](https://github.com/moqsien/goktrl/blob/main/docs/1.png)
 ![shell-2](https://github.com/moqsien/goktrl/blob/main/docs/2.png)
