@@ -25,7 +25,7 @@ goktrl是一个用于交互式进程管理库。可以帮助您的后端应用�
 go get -u "github.com/moqsien/goktrl@v1.3.0"
 ```
 
-- 更多示例: [examples](https://github.com/moqsien/goktrl/blob/main/examples)
+- 更多示例: [examples](https://github.com/moqsien/goktrl/tree/main/examples/ktrl)
 - 最简示例: 
 
 ```text
