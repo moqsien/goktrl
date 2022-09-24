@@ -34,7 +34,7 @@ func NewKtrlServer() *KtrlServer {
 // AddHandler 为KtrlServer添加视图函数
 func (that *KtrlServer) AddHandler(kcmd *KCommand) {
 	that.Router.GET(kcmd.GetKtrlPath(), func(c *gin.Context) {
-		options := kcmd.Opts.ParseServerOptions(kcmd.Opts, c) // 解析Options
+		options := ParseServerOptions(kcmd.Opts, c) // 解析Options
 		kcmd.KtrlHandler(&Context{
 			Context: c,
 			Type:    ContextServer,
@@ -51,11 +51,14 @@ func (that *KtrlServer) SetUnixSocket(sockName string) {
 		}
 		that.UnixSocketName = sockName
 		that.UnixSocketPath = gfile.TempDir(sockName)
-		_, err := os.Stat(that.UnixSocketPath)
-		if !os.IsNotExist(err) {
-			// 判断socket文件是否存在，若已存在则删除
-			_ = gfile.Remove(that.UnixSocketPath)
-		}
+	}
+}
+
+func (that *KtrlServer) CheckUnixSocket() {
+	_, err := os.Stat(that.UnixSocketPath)
+	if !os.IsNotExist(err) {
+		// 判断socket文件是否存在，若已存在则删除
+		_ = gfile.Remove(that.UnixSocketPath)
 	}
 }
 
@@ -68,6 +71,7 @@ func (that *KtrlServer) Start(sockName ...string) error {
 		logger.Error(err)
 		return err
 	}
+	that.CheckUnixSocket()
 	unixAddr, err := net.ResolveUnixAddr("unix", that.UnixSocketPath)
 	if err != nil {
 		return err

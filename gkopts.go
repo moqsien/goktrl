@@ -14,21 +14,29 @@ import (
 const (
 	Alias       = "alias"
 	NeedParse   = "needparse"
-	Must        = "must"
+	Must        = "required"
 	Description = "descr"
 )
 
 type KtrlOpt interface {
-	ParseShellOptions(o KtrlOpt) (KtrlOpt, *ParserPlus)
-	ParseServerOptions(o KtrlOpt, c *gin.Context) KtrlOpt
-	ShowHelpStr(o KtrlOpt) (help string)
+	IsKtrlOpt() bool
 }
 
 // KtrlOption 命令行参数配置基类
 type KtrlOption struct{}
 
-func (that *KtrlOption) ShowHelpStr(o KtrlOpt) (help string) {
+func (that *KtrlOption) IsKtrlOpt() bool {
+	return true
+}
 
+func ShowHelpStr(o KtrlOpt) (help string) {
+	if o == nil {
+		return ""
+	}
+	if reflect.ValueOf(o).Type().Kind() != reflect.Pointer {
+		fmt.Println("[Opts] should be a pointer!")
+		return ""
+	}
 	valType := reflect.ValueOf(o).Type().Elem()
 	for i := 0; i < valType.NumField(); i++ {
 		name := valType.Field(i).Name
@@ -54,7 +62,7 @@ func (that *KtrlOption) ShowHelpStr(o KtrlOpt) (help string) {
 	return
 }
 
-func (that *KtrlOption) SetStructValue(field reflect.Value, fValue string, found bool) {
+func SetStructValue(field reflect.Value, fValue string, found bool) {
 	if field.Type().Kind() == reflect.String {
 		field.SetString(fValue)
 	} else if field.Type().Kind() == reflect.Bool {
@@ -73,7 +81,18 @@ type ParserPlus struct {
 	Params map[string]string
 }
 
-func (that *KtrlOption) ParseShellOptions(o KtrlOpt) (KtrlOpt, *ParserPlus) {
+func ParseShellOptions(o KtrlOpt) (KtrlOpt, *ParserPlus) {
+	if o == nil {
+		parser, err := gcmd.Parse(g.MapStrBool{})
+		if err != nil {
+			fmt.Println(err)
+			return nil, nil
+		}
+		return nil, &ParserPlus{
+			Parser: parser,
+			Params: map[string]string{},
+		}
+	}
 	val := reflect.ValueOf(o)
 	if val.Type().Kind() != reflect.Pointer {
 		fmt.Println("[Opts] should be a pointer!")
@@ -111,7 +130,7 @@ func (that *KtrlOption) ParseShellOptions(o KtrlOpt) (KtrlOpt, *ParserPlus) {
 			fmt.Printf("Option: [%v] is required!\n", option)
 			return nil, nil
 		}
-		that.SetStructValue(val.Elem().FieldByName(fName), paramValue, found)
+		SetStructValue(val.Elem().FieldByName(fName), paramValue, found)
 		// Bool型参数在向服务端传递过程中不能为空
 		if _, ok := params[option]; valType.Field(i).Type.Kind() == reflect.Bool && ok {
 			params[option] = "true"
@@ -123,7 +142,10 @@ func (that *KtrlOption) ParseShellOptions(o KtrlOpt) (KtrlOpt, *ParserPlus) {
 	}
 }
 
-func (that *KtrlOption) ParseServerOptions(o KtrlOpt, c *gin.Context) KtrlOpt {
+func ParseServerOptions(o KtrlOpt, c *gin.Context) KtrlOpt {
+	if o == nil {
+		return nil
+	}
 	val := reflect.ValueOf(o)
 	if val.Type().Kind() != reflect.Pointer {
 		fmt.Println("[Opts] should be a pointer!")
@@ -133,7 +155,7 @@ func (that *KtrlOption) ParseServerOptions(o KtrlOpt, c *gin.Context) KtrlOpt {
 	for i := 0; i < valType.NumField(); i++ {
 		fName := valType.Field(i).Name
 		paramValue := c.Query(strings.ToLower(fName))
-		that.SetStructValue(val.Elem().FieldByName(fName), paramValue, gconv.Bool(paramValue))
+		SetStructValue(val.Elem().FieldByName(fName), paramValue, gconv.Bool(paramValue))
 	}
 	return o
 }

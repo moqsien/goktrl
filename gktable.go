@@ -2,6 +2,7 @@ package goktrl
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"reflect"
 
@@ -69,7 +70,11 @@ func (that *KtrlTable) ParseHeadersFromObject(vType reflect.Type) {
 */
 func (that *KtrlTable) AddRowsByListObject(dataList interface{}) {
 	dList := reflect.ValueOf(dataList)
+	if dList.Kind() == reflect.Pointer {
+		dList = dList.Elem()
+	}
 	if dList.Kind() != reflect.Slice {
+		fmt.Printf("Unsurpported table object: [%s]", dList.Kind())
 		return
 	}
 	dLength := dList.Len()

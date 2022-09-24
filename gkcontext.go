@@ -1,7 +1,9 @@
 package goktrl
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/abiosoft/ishell/v2"
@@ -28,6 +30,7 @@ type Context struct {
 	Client        *KtrlClient
 	DefaultSocket string
 	ShellCmdName  string
+	Result        []byte
 }
 
 func (that *Context) GetResult(sockName ...string) ([]byte, error) {
@@ -38,4 +41,27 @@ func (that *Context) GetResult(sockName ...string) ([]byte, error) {
 	params := that.Parser.Params
 	params[fmt.Sprintf(ArgsFormatStr, that.ShellCmdName)] = strings.Join(that.Args, ",")
 	return that.Client.GetResult(that.KtrlPath, params, sName)
+}
+
+func (that *Context) Send(content interface{}, code ...int) {
+	statusCode := http.StatusOK
+	if len(code) > 0 {
+		statusCode = code[0]
+	}
+	switch content.(type) {
+	case string:
+		r, _ := content.(string)
+		that.Context.String(statusCode, r)
+	case []byte:
+		r, _ := content.([]byte)
+		that.Context.String(statusCode, string(r))
+	default:
+		r, err := json.Marshal(content)
+		if err != nil {
+			fmt.Println(err)
+			that.Context.String(http.StatusInternalServerError, err.Error())
+			return
+		}
+		that.Context.String(statusCode, string(r))
+	}
 }

@@ -22,10 +22,12 @@ type KCommand struct {
 	Func            func(c *Context) // shell 命令钩子函数
 	Opts            KtrlOpt          // shell 命令可选参数配置
 	ShowTable       bool             // 结果是否在命令行中以表格显示
+	TableObject     interface{}      // 空的表格对象
 	KtrlHandler     func(c *Context) // Ktrl服务端视图函数
 	SocketName      string           // 默认Unix套接字名称
 	ArgsDescription string           // 位置参数说明
-	ArgsMust        bool             // 位置参数是否至少要传一个
+	ArgsRequired    bool             // 位置参数是否至少要传一个
+	Auto            bool             // 是否自动发送请求并处理结果
 }
 
 func (that *KCommand) GetKtrlPath() string {
@@ -33,6 +35,9 @@ func (that *KCommand) GetKtrlPath() string {
 }
 
 func (that *Ktrl) AddKtrlCommand(kcmd *KCommand) {
+	if kcmd.SocketName == "" {
+		kcmd.SocketName = "ktrlDefault"
+	}
 	that.CtrlShell.AddCmd(kcmd)
 
 	that.CtrlServer.AddHandler(kcmd)

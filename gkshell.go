@@ -1,6 +1,7 @@
 package goktrl
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -28,7 +29,7 @@ func (that *KtrlShell) AddCmd(kcmd *KCommand) {
 	that.Shell.AddCmd(&ishell.Cmd{
 		Name:     strings.ReplaceAll(kcmd.Name, " ", ""),
 		Help:     kcmd.Help,
-		LongHelp: fmt.Sprintf("%s%s\n args: \n  %s", kcmd.Help, kcmd.Opts.ShowHelpStr(kcmd.Opts), kcmd.ArgsDescription),
+		LongHelp: fmt.Sprintf("%s%s\n args: \n  %s", kcmd.Help, ShowHelpStr(kcmd.Opts), kcmd.ArgsDescription),
 		Func: func(c *ishell.Context) {
 			os.Args = c.Args
 			kc := &Context{
@@ -39,12 +40,12 @@ func (that *KtrlShell) AddCmd(kcmd *KCommand) {
 				DefaultSocket: kcmd.SocketName,
 				ShellCmdName:  kcmd.Name,
 			}
-			kc.Options, kc.Parser = kcmd.Opts.ParseShellOptions(kcmd.Opts)
+			kc.Options, kc.Parser = ParseShellOptions(kcmd.Opts)
 			if kc.Parser == nil {
 				return
 			}
 			kc.Args = kc.Parser.GetArgAll()
-			if kcmd.ArgsMust && len(kc.Args) == 0 {
+			if kcmd.ArgsRequired && len(kc.Args) == 0 {
 				fmt.Println("At least one argument must be provided!")
 				return
 			}
@@ -52,9 +53,30 @@ func (that *KtrlShell) AddCmd(kcmd *KCommand) {
 				// 结果以table形式显示，table的数据在cmd.Func中获取
 				kc.Table = NewKtrlTable()
 			}
-			kcmd.Func(kc)
+			// 全自动获取result并显示
+			if kcmd.Auto {
+				var err error
+				kc.Result, err = kc.GetResult()
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				if !kcmd.ShowTable {
+					// 普通结果显示
+					fmt.Println(string(kc.Result))
+				} else if kcmd.TableObject != nil {
+					// 自动显示表格
+					err = json.Unmarshal(kc.Result, kcmd.TableObject)
+					kc.Table.AddRowsByListObject(kcmd.TableObject)
+				} else {
+					fmt.Println("Table object is required!")
+				}
+			}
+			if kcmd.Func != nil {
+				kcmd.Func(kc)
+			}
 			if kc.Table != nil && kcmd.ShowTable {
-				// 打印table
+				// 渲染表格
 				kc.Table.Render()
 			}
 		},
