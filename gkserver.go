@@ -33,15 +33,17 @@ func NewKtrlServer() *KtrlServer {
 
 // AddHandler 为KtrlServer添加视图函数
 func (that *KtrlServer) AddHandler(kcmd *KCommand) {
-	that.Router.GET(kcmd.GetKtrlPath(), func(c *gin.Context) {
-		options := ParseServerOptions(kcmd.Opts, c) // 解析Options
-		kcmd.KtrlHandler(&Context{
-			Context: c,
-			Type:    ContextServer,
-			Options: options,
-			Args:    strings.Split(c.Query(fmt.Sprintf(ArgsFormatStr, kcmd.Name)), ","),
+	if kcmd.KtrlHandler != nil {
+		that.Router.GET(kcmd.GetKtrlPath(), func(c *gin.Context) {
+			options := ParseServerOptions(kcmd.Opts, c) // 解析Options
+			kcmd.KtrlHandler(&Context{
+				Context: c,
+				Type:    ContextServer,
+				Options: options,
+				Args:    strings.Split(c.Query(fmt.Sprintf(ArgsFormatStr, kcmd.Name)), ","),
+			})
 		})
-	})
+	}
 }
 
 func (that *KtrlServer) SetUnixSocket(sockName string) {

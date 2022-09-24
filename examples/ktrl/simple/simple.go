@@ -19,8 +19,6 @@ func Handler(c *goktrl.Context) {
 	c.Send(Result)
 }
 
-var SName = "info" // shell客户端和服务端交互的unix套接字名称
-
 func ShowInfo() *goktrl.Ktrl {
 	kt := goktrl.NewKtrl()
 	kt.AddKtrlCommand(&goktrl.KCommand{

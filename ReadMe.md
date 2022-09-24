@@ -1,11 +1,7 @@
-### go开发QQ群推荐
-------------------
-Golang/Go 语言开发群: 6848027
-
 ### [goktrl](https://github.com/moqsien/goktrl)
 
 ------------------
-goktrl是一个用于交互式进程管理库。可以帮助您的后端应用程序轻松实现交互式的进程内部状态管理。
+goktrl是一个用于交互式多进程管理库。可以帮助您的后端应用程序轻松实现交互式的进程内部状态管理。
 
 ### 主要特点
 
@@ -42,7 +38,7 @@ import (
 )
 
 /*
-  一个最最简单的例子: 只要求至少有一个位置参数，甚至都不需要shell钩子函数。
+  一个最简单的例子: 甚至都不需要shell钩子函数。
 */
 
 func Handler(c *goktrl.Context) {
@@ -53,16 +49,12 @@ func Handler(c *goktrl.Context) {
 	c.Send(Result)
 }
 
-var SName = "info" // shell客户端和服务端交互的unix套接字名称
-
 func ShowInfo() *goktrl.Ktrl {
 	kt := goktrl.NewKtrl()
 	kt.AddKtrlCommand(&goktrl.KCommand{
 		Name:            "info",          // 命令名称
 		Help:            "show info",     // 命令简短介绍
 		KtrlHandler:     Handler,         // shell服务端视图函数
-		ArgsRequired:    true,            // 至少要传一个位置参数
-		ArgsDescription: "info elements", // 位置参数功能描述
 		Auto:            true,            // 是否全自动处理和显示数据
 	})
 	return kt
@@ -85,7 +77,8 @@ go run test.go aaa # 启动shell客户端
 ```
 
 - 示例效果图
-![shell-0](https://github.com/moqsien/goktrl/blob/main/docs/1.png)
+![shell-1](https://github.com/moqsien/goktrl/blob/main/docs/1.png)
+![shell-2](https://github.com/moqsien/goktrl/blob/main/docs/2.png)
 
 ### 适用场景
 

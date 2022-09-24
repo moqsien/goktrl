@@ -5,14 +5,20 @@ import (
 )
 
 type Ktrl struct {
-	CtrlServer *KtrlServer
-	CtrlShell  *KtrlShell
+	CtrlServer *KtrlServer // 服务端
+	CtrlShell  *KtrlShell  // 客户端交互式shell
+	Multiple   bool        // 是否客户端和服务端在不同进程中执行
 }
 
-func NewKtrl() *Ktrl {
+func NewKtrl(ismulti ...bool) *Ktrl {
+	multi := true // 默认是分别在不同的进程中运行客户端和服务端
+	if len(ismulti) > 0 {
+		multi = ismulti[0]
+	}
 	return &Ktrl{
-		CtrlServer: NewKtrlServer(), // 服务端
-		CtrlShell:  NewShell(),      // 交互式shell
+		CtrlServer: NewKtrlServer(),
+		CtrlShell:  NewShell(),
+		Multiple:   multi,
 	}
 }
 
@@ -49,10 +55,16 @@ func (that *Ktrl) AddKtrlCommand(kcmd *KCommand) {
 
 // RunShell 运行Ktrl交互式shell
 func (that *Ktrl) RunShell(sockName ...string) {
+	if that.Multiple {
+		that.CtrlServer = nil // 回收Server
+	}
 	that.CtrlShell.Run()
 }
 
 // RunCtrl 运行Ktrl服务端
 func (that *Ktrl) RunCtrl(sockName ...string) {
+	if that.Multiple {
+		that.CtrlShell = nil // 回收Client
+	}
 	that.CtrlServer.Start(sockName...)
 }
