@@ -22,10 +22,13 @@ func NewShell() *KtrlShell {
 }
 
 func (that *KtrlShell) AddCmd(kcmd *KCommand) {
+	if kcmd.ArgsDescription == "" {
+		kcmd.ArgsDescription = "no descriptions for args."
+	}
 	that.Shell.AddCmd(&ishell.Cmd{
 		Name:     strings.ReplaceAll(kcmd.Name, " ", ""),
 		Help:     kcmd.Help,
-		LongHelp: fmt.Sprintf("%s%s", kcmd.Help, kcmd.Opts.ShowHelpStr(kcmd.Opts)),
+		LongHelp: fmt.Sprintf("%s%s\n args: \n  %s", kcmd.Help, kcmd.Opts.ShowHelpStr(kcmd.Opts), kcmd.ArgsDescription),
 		Func: func(c *ishell.Context) {
 			os.Args = c.Args
 			kc := &Context{
@@ -41,6 +44,10 @@ func (that *KtrlShell) AddCmd(kcmd *KCommand) {
 				return
 			}
 			kc.Args = kc.Parser.GetArgAll()
+			if kcmd.ArgsMust && len(kc.Args) == 0 {
+				fmt.Println("At least one argument must be provided!")
+				return
+			}
 			if kcmd.ShowTable {
 				// 结果以table形式显示，table的数据在cmd.Func中获取
 				kc.Table = NewKtrlTable()

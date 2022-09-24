@@ -106,6 +106,7 @@ func (that *KtrlOption) ParseShellOptions(o KtrlOpt) (KtrlOpt, *ParserPlus) {
 		fName := valType.Field(i).Name
 		option := strings.ToLower(fName)
 		paramValue, found := parser.GetOptAll()[option]
+		// 检查必传的具名参数
 		if gconv.Bool(valType.Field(i).Tag.Get(Must)) && !found {
 			fmt.Printf("Option: [%v] is required!\n", option)
 			return nil, nil

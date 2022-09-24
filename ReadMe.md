@@ -49,12 +49,15 @@ type Data struct {
 
 /*
   命令的具名参数(options)的配置；
+  必须继承*goktrl.KtrlOption；
   结构体字段名即为参数名；
   标签功能解释：
+
     alias: 设置别名；
 	must: 是否为必传具名参数；
-	descr: 具名参数的描述信息；
+	descr: 具名参数描述信息；
 	needparse: 一般不需要用户设置，已根据结构体字段类型进行自动处理；
+
   支持的字段类型有: string, bool, int, uint, float
 */
 type InfOptions struct {
@@ -95,13 +98,15 @@ var SName = "info" // shell客户端和服务端交互的unix套接字名称
 func ShowTable() {
 	kt := goktrl.NewKtrl()
 	kt.AddKtrlCommand(&goktrl.KCommand{
-		Name:        "info",        // 命令名称
-		Help:        "show info",   // 命令简短介绍
-		Func:        Info,          // shell命令钩子
-		Opts:        &InfOptions{}, // shell命令的具名参数
-		ShowTable:   true,          // 是否开启表格显示功能
-		KtrlHandler: Handler,       // shell服务端视图函数
-		SocketName:  SName,         // unix套接字名称
+		Name:            "info",          // 命令名称
+		Help:            "show info",     // 命令简短介绍
+		Func:            Info,            // shell命令钩子
+		Opts:            &InfOptions{},   // shell命令的具名参数
+		ShowTable:       true,            // 是否开启表格显示功能
+		KtrlHandler:     Handler,         // shell服务端视图函数
+		SocketName:      SName,           // unix套接字名称
+		ArgsMust:        true,            // 至少要传一个位置参数
+		ArgsDescription: "info elements", // 位置参数功能描述
 	})
 	go kt.RunCtrl() // 开启服务端
 	kt.RunShell()   // 开启shell客户端
@@ -113,8 +118,6 @@ func main() {
 ```
 - 示例效果图
 ![shell-0](https://github.com/moqsien/goktrl/blob/main/docs/0.png)
-![shell-1](https://github.com/moqsien/goktrl/blob/main/docs/1.png)
-![shell-2](https://github.com/moqsien/goktrl/blob/main/docs/2.png)
 - [examples/ktrl/ktrl.go](https://github.com/moqsien/goktrl/blob/main/examples/ktrl/ktrl.go)
 
 ### 适用场景
