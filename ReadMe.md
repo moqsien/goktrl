@@ -53,8 +53,8 @@ type Data struct {
   标签功能解释：
     alias: 设置别名；
 	must: 是否为必传具名参数；
-	descr: 具名参数描述信息；
-	needparse: 一般不需要用户设置，已根据结构体字段类型进程自动处理；
+	descr: 具名参数的描述信息；
+	needparse: 一般不需要用户设置，已根据结构体字段类型进行自动处理；
   支持的字段类型有: string, bool, int, uint, float
 */
 type InfOptions struct {
@@ -104,7 +104,7 @@ func ShowTable() {
 		SocketName:  SName,         // unix套接字名称
 	})
 	go kt.RunCtrl() // 开启服务端
-	kt.RunShell()   // 开启shell
+	kt.RunShell()   // 开启shell客户端
 }
 
 func main() {
