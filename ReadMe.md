@@ -18,7 +18,7 @@ goktrl是一个用于交互式进程管理库。可以帮助您的后端应用�
 
 ------------------
 ```shell
-go get -u "github.com/moqsien/goktrl@v1.2.1"
+go get -u "github.com/moqsien/goktrl@v1.2.2"
 ```
 ```go
 package main
