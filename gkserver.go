@@ -25,6 +25,7 @@ type KtrlServer struct {
 }
 
 func NewKtrlServer() *KtrlServer {
+	gin.SetMode(gin.ReleaseMode)
 	return &KtrlServer{
 		Router: gin.New(),
 	}
@@ -76,6 +77,5 @@ func (that *KtrlServer) Start(sockName ...string) error {
 		logger.Error("listening error:", err)
 		return err
 	}
-	gin.SetMode(gin.ReleaseMode)
 	return http.Serve(listener, that.Router)
 }
