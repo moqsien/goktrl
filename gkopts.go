@@ -18,16 +18,7 @@ const (
 	Description = "descr"
 )
 
-type KtrlOpt interface {
-	IsKtrlOpt() bool
-}
-
-// KtrlOption 命令行参数配置基类
-type KtrlOption struct{}
-
-func (that *KtrlOption) IsKtrlOpt() bool {
-	return true
-}
+type KtrlOpt interface{}
 
 func ShowHelpStr(o KtrlOpt) (help string) {
 	if o == nil {
@@ -38,6 +29,10 @@ func ShowHelpStr(o KtrlOpt) (help string) {
 		return ""
 	}
 	valType := reflect.ValueOf(o).Type().Elem()
+	if valType.Kind() != reflect.Struct {
+		fmt.Println("[Opts] should be a pointer of struct!")
+		return ""
+	}
 	for i := 0; i < valType.NumField(); i++ {
 		name := valType.Field(i).Name
 		if name == "KtrlOption" {
@@ -99,6 +94,10 @@ func ParseShellOptions(o KtrlOpt) (KtrlOpt, *ParserPlus) {
 		return nil, nil
 	}
 	valType := val.Type().Elem()
+	if valType.Kind() != reflect.Struct {
+		fmt.Println("[Opts] should be a pointer of struct!")
+		return nil, nil
+	}
 	settings := g.MapStrBool{}
 	for i := 0; i < valType.NumField(); i++ {
 		alias := valType.Field(i).Tag.Get(Alias)

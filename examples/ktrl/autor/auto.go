@@ -37,7 +37,6 @@ type Data struct {
   支持的字段类型有: string, bool, int, uint, float
 */
 type InfOptions struct {
-	*goktrl.KtrlOption
 	All  bool   `alias:"a" required:"true" descr:"show all info or not"`
 	Info string `alias:"i" descr:"infomation"`
 }

@@ -1,7 +1,6 @@
-package manual
+package single
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/moqsien/goktrl"
@@ -9,7 +8,7 @@ import (
 
 /*
   下面是一个关于goktrl的简短示例。
-  手动处理数据。
+  自动处理数据。
 */
 
 /*
@@ -46,33 +45,24 @@ func Info(c *goktrl.Context) {
 	o := c.Options.(*InfOptions)               // 自动解析参数到结构体
 	fmt.Printf("## client: options=%v\n", o)   // 打印结构体
 	fmt.Printf("## client: args=%v\n", c.Args) // 自动收集命令行普通的位置参数
-	result, err := c.GetResult()               // 自动根据参数向服务端发送请求，请求会到达下面的Handler路由方法
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	var content interface{} = &[]*Data{}
-	err = json.Unmarshal(result, content)
-	c.Table.AddRowsByListObject(content) // 如果ShowTable设置为true，此处可添加表格数据，会自动渲染和显示表格
 }
 
 func Handler(c *goktrl.Context) {
 	o := c.Options.(*InfOptions)                 // 自动解析参数到结构体
 	fmt.Printf("$$ server: options = %v\n", o)   // 打印结构体
 	fmt.Printf("$$ server: args = %v\n", c.Args) // 自动解析shell传过来的位置参数到c.Args
-	var Result interface{} = []*Data{
+	Result := []*Data{
 		{Name: "Apple", Price: 6.0, Stokes: 128, Addition: []interface{}{1, "a", "c"}},
 		{Name: "Banana", Price: 3.5, Stokes: 256, Addition: []interface{}{"b", 1.2}},
 		{Name: "Pear", Price: 5, Stokes: 121, Sth: map[string]interface{}{"s": 123}},
 	}
-	content, _ := json.Marshal(&Result)
-	c.Send(content) // 发送数据给shell
+	c.Send(Result)
 }
 
 var SName = "info" // shell客户端和服务端交互的unix套接字名称
 
 func ShowTable() *goktrl.Ktrl {
-	kt := goktrl.NewKtrl()
+	kt := goktrl.NewKtrl(false)
 	kt.AddKtrlCommand(&goktrl.KCommand{
 		Name:            "info",          // 命令名称
 		Help:            "show info",     // 命令简短介绍
@@ -83,6 +73,8 @@ func ShowTable() *goktrl.Ktrl {
 		SocketName:      SName,           // unix套接字名称
 		ArgsRequired:    true,            // 至少要传一个位置参数
 		ArgsDescription: "info elements", // 位置参数功能描述
+		Auto:            true,            // 是否全自动处理数据
+		TableObject:     &[]*Data{},      // table object，用于表格自动加载数据
 	})
 	return kt
 }

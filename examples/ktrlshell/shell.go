@@ -7,7 +7,6 @@ import (
 )
 
 type InfoOptions struct {
-	*goktrl.KtrlOption
 	Test  string `alias:"t"`
 	Test2 string `alias:"t2" needparse:"false"`
 }
@@ -30,7 +29,6 @@ func testOpts() {
 }
 
 type TableOptions struct {
-	*goktrl.KtrlOption
 	Table string `alias:"t"`
 }
 

@@ -18,7 +18,7 @@ goktrl是一个用于交互式多进程管理库。可以帮助您的后端应�
 
 ------------------
 ```shell
-go get -u "github.com/moqsien/goktrl@v1.3.1"
+go get -u "github.com/moqsien/goktrl@v1.3.2"
 ```
 
 - 更多示例: [examples](https://github.com/moqsien/goktrl/tree/main/examples/ktrl)
