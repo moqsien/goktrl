@@ -1,18 +1,21 @@
 ### [goktrl](https://github.com/moqsien/goktrl)
 
 ------------------
-goktrl是一个用于交互式多进程管理库。可以帮助您的后端应用程序轻松实现交互式的进程内部状态管理。
+[En ReadMe]()
+goktrl是一个用于交互式多进程管理的shell库。进程间交互使用unix套接字。
 
 ### 主要特点
 
 ------------------
 - 交互式shell
-- 友好的命令提示，使用方法：[command] help
-- 强大的参数配置、自动检测、自动解析,以及请求转发等功能，详见下面的示例
-- 通过Unix Domain Socket管理正在运行的进程
-- shell终端支持表格显示，表格字段支持以"order"标签的值作为排序标准，如果没有order标签，则按照字段名排序
-- 清晰直观，服务端和客户端一起编写，方便集成；
-- 后端集成了goktrl之后，就可以实现在不影响项目运行的情况下，查看进程内部状态，开启或停止goroutine等；
+- 友好的命令参数提示
+- 使用结构体和标签作为参数配置
+- 参数自动解析和校验
+- 自动渲染表格数据，如果开启了相关选项
+- 自动处理和显示数据，如果开启了相关选项
+- 通过unix套接字连接到进程
+- 方便的请求转发功能
+- 整体非常直观，配置灵活
 
 ### 使用方法
 
@@ -80,11 +83,6 @@ go run test.go aaa # 启动shell客户端
 ![shell-0](https://github.com/moqsien/goktrl/blob/main/docs/0.png)
 ![shell-1](https://github.com/moqsien/goktrl/blob/main/docs/1.png)
 ![shell-2](https://github.com/moqsien/goktrl/blob/main/docs/2.png)
-
-### 适用场景
-
-------------------
-- 在不重启进程的情况下，对调整进程中的参数、开启和关闭goroutine、显示进程内部状态等；
 
 ### Thanks To
 
