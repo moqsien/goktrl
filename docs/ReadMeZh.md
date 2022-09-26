@@ -1,7 +1,7 @@
 ### [goktrl](https://github.com/moqsien/goktrl)
 
 ------------------
-[En](https://github.com/moqsien/goktrl/blob/main/ReadMe.md)
+[En](https://github.com/moqsien/goktrl)
 
 goktrl是一个用于交互式多进程管理的shell库。进程间交互使用unix套接字。
 
