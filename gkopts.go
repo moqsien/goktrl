@@ -14,7 +14,7 @@ import (
 const (
 	Alias       = "alias"
 	NeedParse   = "needparse"
-	Must        = "required"
+	Required    = "required"
 	Description = "descr"
 )
 
@@ -40,12 +40,12 @@ func ShowHelpStr(o KtrlOpt) (help string) {
 		}
 		tag := valType.Field(i).Tag
 		if valType.Field(i).Type.Kind() == reflect.Bool {
-			help += fmt.Sprintf("\n  -%s; alias:{%s}; description: %s",
+			help += fmt.Sprintf("\n  -%s; alias:-{%s}; description: %s",
 				strings.ToLower(name),
 				tag.Get(Alias),
 				tag.Get(Description))
 		} else {
-			help += fmt.Sprintf("\n  --%s=xxx; alias:{%s}; description: %s",
+			help += fmt.Sprintf("\n  --%s=xxx; alias:-{%s}; description: %s",
 				strings.ToLower(name),
 				tag.Get(Alias),
 				tag.Get(Description))
@@ -76,7 +76,39 @@ type ParserPlus struct {
 	Params map[string]string
 }
 
-func ParseShellOptions(o KtrlOpt) (KtrlOpt, *ParserPlus) {
+type Options struct {
+	OptList  g.MapStrBool // 是否解析参数的值
+	Required g.MapStrBool // 是否必传
+}
+
+func ParseOptionsProperties(valType reflect.Type, k *KCommand) {
+	if k.options == nil {
+		optList := g.MapStrBool{}
+		required := g.MapStrBool{}
+		for i := 0; i < valType.NumField(); i++ {
+			alias := valType.Field(i).Tag.Get(Alias)
+			fName := strings.ToLower(valType.Field(i).Name)
+			if alias == "" {
+				alias = fName
+			} else if !strings.Contains(alias, fName) {
+				alias += "," + fName
+			}
+			np := valType.Field(i).Tag.Get(NeedParse)
+			// 非布尔型参数默认需要解析其值，布尔型参数默认不需要解析其值(例如，-y出现在参数中即为ture，否则为false)
+			if np == "" && valType.Field(i).Type.Kind() != reflect.Bool {
+				np = "a"
+			}
+			optList[alias] = gconv.Bool(np)
+			required[valType.Field(i).Name] = gconv.Bool(valType.Field(i).Tag.Get(Required))
+		}
+		k.options = &Options{
+			Required: required,
+			OptList:  optList,
+		}
+	}
+}
+
+func ParseShellOptions(o KtrlOpt, k *KCommand) (KtrlOpt, *ParserPlus) {
 	if o == nil {
 		parser, err := gcmd.Parse(g.MapStrBool{})
 		if err != nil {
@@ -98,41 +130,30 @@ func ParseShellOptions(o KtrlOpt) (KtrlOpt, *ParserPlus) {
 		fmt.Println("[Opts] should be a pointer of struct!")
 		return nil, nil
 	}
-	settings := g.MapStrBool{}
-	for i := 0; i < valType.NumField(); i++ {
-		alias := valType.Field(i).Tag.Get(Alias)
-		fName := strings.ToLower(valType.Field(i).Name)
-		if alias == "" {
-			alias = fName
-		} else if !strings.Contains(alias, fName) {
-			alias += "," + fName
-		}
-		np := valType.Field(i).Tag.Get(NeedParse)
-		if np == "" && valType.Field(i).Type.Kind() != reflect.Bool {
-			np = "a"
-		}
-		settings[alias] = gconv.Bool(np)
+	ParseOptionsProperties(valType, k)
+	if k.options == nil {
+		return nil, nil
 	}
 
-	parser, err := gcmd.Parse(settings)
-	params := parser.GetOptAll()
+	parser, err := gcmd.Parse(k.options.OptList)
 	if err != nil {
 		fmt.Println(err)
 		return nil, nil
 	}
-	for i := 0; i < valType.NumField(); i++ {
-		fName := valType.Field(i).Name
-		option := strings.ToLower(fName)
-		paramValue, found := parser.GetOptAll()[option]
+
+	params := parser.GetOptAll()
+	for fieldName, isRequired := range k.options.Required {
+		optName := strings.ToLower(fieldName)
+		paramValue, found := params[optName]
 		// 检查必传的具名参数
-		if gconv.Bool(valType.Field(i).Tag.Get(Must)) && !found {
-			fmt.Printf("Option: [%v] is required!\n", option)
+		if isRequired && !found {
+			fmt.Printf("Option: [%v] is required!\n", optName)
 			return nil, nil
 		}
-		SetStructValue(val.Elem().FieldByName(fName), paramValue, found)
+		SetStructValue(val.Elem().FieldByName(fieldName), paramValue, found)
 		// Bool型参数在向服务端传递过程中不能为空
-		if _, ok := params[option]; valType.Field(i).Type.Kind() == reflect.Bool && ok {
-			params[option] = "true"
+		if found && val.Elem().FieldByName(fieldName).Kind() == reflect.Bool {
+			params[optName] = "true"
 		}
 	}
 	return o, &ParserPlus{

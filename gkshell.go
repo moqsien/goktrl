@@ -40,7 +40,7 @@ func (that *KtrlShell) AddCmd(kcmd *KCommand) {
 				DefaultSocket: kcmd.SocketName,
 				ShellCmdName:  kcmd.Name,
 			}
-			kc.Options, kc.Parser = ParseShellOptions(kcmd.Opts)
+			kc.Options, kc.Parser = ParseShellOptions(kcmd.Opts, kcmd)
 			if kc.Parser == nil {
 				return
 			}
