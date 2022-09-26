@@ -77,6 +77,7 @@ go run test.go aaa # 启动shell客户端
 ```
 
 - 示例效果图
+![shell-0](https://github.com/moqsien/goktrl/blob/main/docs/0.png)
 ![shell-1](https://github.com/moqsien/goktrl/blob/main/docs/1.png)
 ![shell-2](https://github.com/moqsien/goktrl/blob/main/docs/2.png)
 
