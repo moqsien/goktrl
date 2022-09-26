@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/moqsien/goktrl/examples/ktrl/autor"
+	"github.com/moqsien/goktrl/examples/ktrl/dispatch"
 	"github.com/moqsien/goktrl/examples/ktrl/manual"
 	"github.com/moqsien/goktrl/examples/ktrl/simple"
 	"github.com/moqsien/goktrl/examples/ktrl/single"
@@ -48,9 +49,20 @@ func runSingle() {
 	kt.RunShell()
 }
 
+func runDispatching() {
+	if len(os.Args) > 2 {
+		dispatch.RunC()
+	} else if len(os.Args) > 1 {
+		dispatch.RunS(dispatch.DefaultSock)
+	} else {
+		dispatch.RunS(dispatch.Sock1)
+	}
+}
+
 func main() {
-	runAuto()
+	// runAuto()
 	// runManual()
 	// runSimple()
 	// runSingle()
+	runDispatching()
 }

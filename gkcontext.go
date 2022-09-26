@@ -38,30 +38,44 @@ func (that *Context) GetResult(sockName ...string) ([]byte, error) {
 	if len(sockName) > 0 && len(sockName[0]) > 0 {
 		sName = sockName[0]
 	}
-	params := that.Parser.Params
-	params[fmt.Sprintf(ArgsFormatStr, that.ShellCmdName)] = strings.Join(that.Args, ",")
+	params := make(map[string]string)
+	if that.Type == ContextClient {
+		params = that.Parser.Params
+		params[fmt.Sprintf(ArgsFormatStr, that.ShellCmdName)] = strings.Join(that.Args, ",")
+	} else {
+		// 服务端继续转发请求
+		for k := range that.Request.URL.Query() {
+			params[k] = that.Query(k)
+		}
+		that.KtrlPath = that.Request.URL.Path
+	}
+	if that.Client == nil {
+		that.Client = NewKtrlClient()
+	}
 	return that.Client.GetResult(that.KtrlPath, params, sName)
 }
 
 func (that *Context) Send(content interface{}, code ...int) {
-	statusCode := http.StatusOK
-	if len(code) > 0 {
-		statusCode = code[0]
-	}
-	switch content.(type) {
-	case string:
-		r, _ := content.(string)
-		that.Context.String(statusCode, r)
-	case []byte:
-		r, _ := content.([]byte)
-		that.Context.String(statusCode, string(r))
-	default:
-		r, err := json.Marshal(content)
-		if err != nil {
-			fmt.Println(err)
-			that.Context.String(http.StatusInternalServerError, err.Error())
-			return
+	if that.Context != nil {
+		statusCode := http.StatusOK
+		if len(code) > 0 {
+			statusCode = code[0]
 		}
-		that.Context.String(statusCode, string(r))
+		switch content.(type) {
+		case string:
+			r, _ := content.(string)
+			that.Context.String(statusCode, r)
+		case []byte:
+			r, _ := content.([]byte)
+			that.Context.String(statusCode, string(r))
+		default:
+			r, err := json.Marshal(content)
+			if err != nil {
+				fmt.Println(err)
+				that.Context.String(http.StatusInternalServerError, err.Error())
+				return
+			}
+			that.Context.String(statusCode, string(r))
+		}
 	}
 }

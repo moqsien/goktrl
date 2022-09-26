@@ -1,4 +1,4 @@
-package autor
+package dispatch
 
 import (
 	"fmt"
@@ -47,21 +47,35 @@ func Info(c *goktrl.Context) {
 	fmt.Printf("## client: args=%v\n", c.Args) // 自动收集命令行普通的位置参数
 }
 
+var (
+	DefaultSock   = "info"
+	Sock1         = "info1"
+	IsServerSock1 = false
+)
+
 func Handler(c *goktrl.Context) {
-	o := c.Options.(*InfOptions)                 // 自动解析参数到结构体
-	fmt.Printf("$$ server: options = %v\n", o)   // 打印结构体
-	fmt.Printf("$$ server: args = %v\n", c.Args) // 自动解析shell传过来的位置参数到c.Args
-	Result := []*Data{
-		{Name: "Apple", Price: 6.0, Stokes: 128, Addition: []interface{}{1, "a", "c"}},
-		{Name: "Banana", Price: 3.5, Stokes: 256, Addition: []interface{}{"b", 1.2}},
-		{Name: "Pear", Price: 5, Stokes: 121, Sth: map[string]interface{}{"s": 123}},
+	if !IsServerSock1 {
+		fmt.Println("===dispatching request from client!")
+		result, _ := c.GetResult(Sock1) // 转发请求到Sock1
+		fmt.Println("===dispatching result: ", string(result))
+		c.Send(result)
+	} else {
+		o := c.Options.(*InfOptions)                 // 自动解析参数到结构体
+		fmt.Printf("$$ server: options = %v\n", o)   // 打印结构体
+		fmt.Printf("$$ server: args = %v\n", c.Args) // 自动解析shell传过来的位置参数到c.Args
+		Result := []*Data{
+			{Name: "Apple", Price: 6.0, Stokes: 128, Addition: []interface{}{1, "a", "c"}},
+			{Name: "Banana", Price: 3.5, Stokes: 256, Addition: []interface{}{"b", 1.2}},
+			{Name: "Pear", Price: 5, Stokes: 121, Sth: map[string]interface{}{"s": 123}},
+		}
+		c.Send(Result)
 	}
-	c.Send(Result)
 }
 
-var SName = "info" // shell客户端和服务端交互的unix套接字名称
-
-func ShowTable() *goktrl.Ktrl {
+func ShowTable(sockName string) *goktrl.Ktrl {
+	if sockName == "" {
+		sockName = DefaultSock
+	}
 	kt := goktrl.NewKtrl()
 	kt.AddKtrlCommand(&goktrl.KCommand{
 		Name:            "info",          // 命令名称
@@ -70,11 +84,28 @@ func ShowTable() *goktrl.Ktrl {
 		Opts:            &InfOptions{},   // shell命令的具名参数
 		ShowTable:       true,            // 是否开启表格显示功能
 		KtrlHandler:     Handler,         // shell服务端视图函数
-		SocketName:      SName,           // unix套接字名称
+		SocketName:      sockName,        // unix套接字名称
 		ArgsRequired:    true,            // 至少要传一个位置参数
 		ArgsDescription: "info elements", // 位置参数功能描述
 		Auto:            true,            // 是否全自动处理数据
 		TableObject:     &[]*Data{},      // table object，用于表格自动加载数据
 	})
 	return kt
+}
+
+func RunS(sockName string) {
+	if sockName != DefaultSock && sockName != Sock1 {
+		fmt.Println("Sock: ", sockName, "is not surpported!")
+		return
+	}
+	if sockName == Sock1 {
+		IsServerSock1 = true
+	}
+	kt := ShowTable(sockName)
+	kt.RunCtrl()
+}
+
+func RunC() {
+	kt := ShowTable(DefaultSock)
+	kt.RunShell()
 }

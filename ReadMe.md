@@ -8,7 +8,7 @@ goktrl是一个用于交互式多进程管理库。可以帮助您的后端应�
 ------------------
 - 交互式shell
 - 友好的命令提示，使用方法：[command] help
-- 强大的参数配置、自动检测、自动解析功能，详见下面的示例
+- 强大的参数配置、自动检测、自动解析,以及请求转发等功能，详见下面的示例
 - 通过Unix Domain Socket管理正在运行的进程
 - shell终端支持表格显示，表格字段支持以"order"标签的值作为排序标准，如果没有order标签，则按照字段名排序
 - 清晰直观，服务端和客户端一起编写，方便集成；
@@ -18,7 +18,7 @@ goktrl是一个用于交互式多进程管理库。可以帮助您的后端应�
 
 ------------------
 ```shell
-go get -u "github.com/moqsien/goktrl@v1.3.3"
+go get -u "github.com/moqsien/goktrl@v1.3.6"
 ```
 
 - 更多示例: [examples](https://github.com/moqsien/goktrl/tree/main/examples/ktrl)

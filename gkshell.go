@@ -34,7 +34,6 @@ func (that *KtrlShell) AddCmd(kcmd *KCommand) {
 			os.Args = c.Args
 			kc := &Context{
 				Type:          ContextClient,
-				Client:        NewKtrlClient(),
 				ShellContext:  c,
 				KtrlPath:      kcmd.GetKtrlPath(),
 				DefaultSocket: kcmd.SocketName,
