@@ -72,6 +72,9 @@ func main() {
 ![shell-1](https://github.com/moqsien/goktrl/blob/main/docs/1.png)
 ![shell-2](https://github.com/moqsien/goktrl/blob/main/docs/2.png)
 
+### License
+[MIT](https://github.com/moqsien/goktrl/blob/main/LICENSE)
+
 ### Thanks To
 
 ------------------
