@@ -2,6 +2,10 @@ package goktrl
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+
+	"github.com/gogf/gf/os/gfile"
 )
 
 type Ktrl struct {
@@ -68,4 +72,18 @@ func (that *Ktrl) RunCtrl(sockName ...string) {
 		that.CtrlShell = nil // 回收Client
 	}
 	that.CtrlServer.Start(sockName...)
+}
+
+const (
+	GoKtrlSockDirEnv string = "GOKTRL_SOCK_DIR"
+)
+
+func GetSockFilePath(sockName string) (p string) {
+	sockDir := os.Getenv(GoKtrlSockDirEnv)
+	if sockDir == "" {
+		p = gfile.TempDir(sockName)
+	} else {
+		p = filepath.Join(sockDir, sockName)
+	}
+	return
 }

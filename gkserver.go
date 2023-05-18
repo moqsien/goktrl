@@ -52,7 +52,7 @@ func (that *KtrlServer) SetUnixSocket(sockName string) {
 			sockName += ".sock"
 		}
 		that.UnixSocketName = sockName
-		that.UnixSocketPath = gfile.TempDir(sockName)
+		that.UnixSocketPath = GetSockFilePath(sockName)
 	}
 }
 

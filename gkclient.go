@@ -7,8 +7,6 @@ import (
 	"net"
 	"net/http"
 	"strings"
-
-	"github.com/gogf/gf/os/gfile"
 )
 
 type KtrlClient struct {
@@ -38,7 +36,7 @@ func (that *KtrlClient) SetUnixSocket(sockName string) {
 			sockName += ".sock"
 		}
 		that.UnixSocketName = sockName
-		that.UnixSocketPath = gfile.TempDir(sockName)
+		that.UnixSocketPath = GetSockFilePath(sockName)
 		that.SetConnection() // 连接server
 	}
 }
