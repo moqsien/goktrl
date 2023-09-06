@@ -27,18 +27,19 @@ func NewKtrl(ismulti ...bool) *Ktrl {
 }
 
 type KCommand struct {
-	Name            string           // shell 命令名称
-	Help            string           // shell 命令解释
-	Func            func(c *Context) // shell 命令钩子函数
-	Opts            KtrlOpt          // shell 命令可选参数配置
-	KtrlHandler     func(c *Context) // Ktrl服务端视图函数
-	SocketName      string           // 默认Unix套接字名称
-	ArgsDescription string           // 位置参数说明
-	ArgsRequired    bool             // 位置参数是否至少要传一个
-	Auto            bool             // 是否自动发送请求并处理结果
-	TableObject     interface{}      // 空的表格对象
-	ShowTable       bool             // 结果是否在命令行中以表格显示
-	options         *Options         // 缓存参数结构体reflect结果
+	Name            string                  // shell 命令名称
+	Help            string                  // shell 命令解释
+	Func            func(c *Context)        // shell 命令钩子函数
+	Opts            KtrlOpt                 // shell 命令可选参数配置
+	KtrlHandler     func(c *Context)        // Ktrl服务端视图函数
+	SocketName      string                  // 默认Unix套接字名称
+	ArgsDescription string                  // 位置参数说明
+	ArgsRequired    bool                    // 位置参数是否至少要传一个
+	Auto            bool                    // 是否自动发送请求并处理结果
+	TableObject     interface{}             // 空的表格对象
+	ShowTable       bool                    // 结果是否在命令行中以表格显示
+	options         *Options                // 缓存参数结构体reflect结果
+	ArgsHook        func([]string) []string // 在shell中处理Args, 然后向Server发送处理之后的Args
 }
 
 func (that *KCommand) GetKtrlPath() string {

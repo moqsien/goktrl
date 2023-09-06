@@ -10,7 +10,7 @@ import (
 )
 
 /*
-  为shell增加参数解析功能
+为shell增加参数解析功能
 */
 type KtrlShell struct {
 	*ishell.Shell
@@ -44,6 +44,9 @@ func (that *KtrlShell) AddCmd(kcmd *KCommand) {
 				return
 			}
 			kc.Args = kc.Parser.GetArgAll()
+			if kcmd.ArgsHook != nil {
+				kc.Args = kcmd.ArgsHook(kc.Args)
+			}
 			if kcmd.ArgsRequired && len(kc.Args) == 0 {
 				fmt.Println("At least one argument must be provided!")
 				return
@@ -65,7 +68,9 @@ func (that *KtrlShell) AddCmd(kcmd *KCommand) {
 					fmt.Println(string(kc.Result))
 				} else if kcmd.TableObject != nil {
 					// 自动显示表格
-					err = json.Unmarshal(kc.Result, kcmd.TableObject)
+					if err = json.Unmarshal(kc.Result, kcmd.TableObject); err != nil {
+						fmt.Println(err)
+					}
 					kc.Table.AddRowsByListObject(kcmd.TableObject)
 				} else {
 					fmt.Println("Table object is required!")

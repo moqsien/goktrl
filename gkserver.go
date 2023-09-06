@@ -69,7 +69,7 @@ func (that *KtrlServer) Start(sockName ...string) error {
 		that.SetUnixSocket(sockName[0])
 	}
 	if that.UnixSocketPath == "" {
-		err := errors.New("Unix socket not initialized!")
+		err := errors.New("unix socket not initialized")
 		logger.Error(err)
 		return err
 	}

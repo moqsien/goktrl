@@ -61,21 +61,19 @@ func (that *Context) Send(content interface{}, code ...int) {
 		if len(code) > 0 {
 			statusCode = code[0]
 		}
-		switch content.(type) {
+		switch r := content.(type) {
 		case string:
-			r, _ := content.(string)
 			that.Context.String(statusCode, r)
 		case []byte:
-			r, _ := content.([]byte)
 			that.Context.String(statusCode, string(r))
 		default:
-			r, err := json.Marshal(content)
+			res, err := json.Marshal(content)
 			if err != nil {
 				fmt.Println(err)
 				that.Context.String(http.StatusInternalServerError, err.Error())
 				return
 			}
-			that.Context.String(statusCode, string(r))
+			that.Context.String(statusCode, string(res))
 		}
 	}
 }
